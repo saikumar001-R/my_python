@@ -90,6 +90,29 @@ font-size:17px;
 
 }
 
+.goal-buttons{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.goal-buttons button{
+flex:1;
+background:#3b82f6;
+}
+
+.macro-bar{
+background:#334155;
+border-radius:10px;
+overflow:hidden;
+margin:6px 0;
+}
+
+.macro-fill{
+height:10px;
+background:#22c55e;
+}
+
 </style>
 
 </head>
@@ -127,11 +150,25 @@ font-size:17px;
 
 <button onclick="calculate()">Calculate</button>
 
+<div class="goal-buttons" id="goalButtons" style="display:none">
+
+<button onclick="showWeightLoss()">Weight Loss</button>
+
+<button onclick="showWeightGain()">Weight Gain</button>
+
+</div>
+
 <div class="results" id="result"></div>
 
 </div>
 
 <script>
+
+let maintenanceCalories
+let userWeight
+let userAge
+let userGender
+let userHeight
 
 function calculate(){
 
@@ -146,6 +183,11 @@ alert("Please fill all fields")
 return
 }
 
+userWeight=parseFloat(weight)
+userAge=parseFloat(age)
+userGender=gender
+userHeight=parseFloat(height)
+
 let bmr
 
 if(gender=="male"){
@@ -154,36 +196,84 @@ bmr=10*weight+6.25*height-5*age+5
 bmr=10*weight+6.25*height-5*age-161
 }
 
-let maintenance=Math.round(bmr*activity)
+maintenanceCalories=Math.round(bmr*activity)
 
-let fatloss=Math.round(maintenance-400)
+let heightMeters=height/100
+let bmi=weight/(heightMeters*heightMeters)
 
-let musclegain=Math.round(maintenance+300)
+let bodyFat
 
-let protein=weight*2
-let fat=weight*0.8
+if(gender=="male"){
+bodyFat=(1.20*bmi)+(0.23*age)-16.2
+}else{
+bodyFat=(1.20*bmi)+(0.23*age)-5.4
+}
+
+showMacros(maintenanceCalories,bmi,bodyFat)
+
+document.getElementById("goalButtons").style.display="flex"
+
+}
+
+function showWeightLoss(){
+
+let calories=maintenanceCalories-400
+showMacros(calories)
+
+}
+
+function showWeightGain(){
+
+let calories=maintenanceCalories+300
+showMacros(calories)
+
+}
+
+function showMacros(calories,bmi=null,bodyFat=null){
+
+let protein=userWeight*2
+let fat=userWeight*0.8
 
 let proteinCalories=protein*4
 let fatCalories=fat*9
 
-let remainingCalories=maintenance-(proteinCalories+fatCalories)
+let remainingCalories=calories-(proteinCalories+fatCalories)
 
 let carbs=remainingCalories/4
 let carbCalories=carbs*4
 
-document.getElementById("result").innerHTML=
+let proteinPercent=(proteinCalories/calories)*100
+let carbPercent=(carbCalories/calories)*100
+let fatPercent=(fatCalories/calories)*100
 
-"<div class='result-title'>Daily Calories</div>"+
+let resultHTML=""
 
-"Maintenance: <b>"+maintenance+" kcal</b><br>"+
-"Fat Loss: <b>"+fatloss+" kcal</b><br>"+
-"Muscle Gain: <b>"+musclegain+" kcal</b><br><br>"+
+if(bmi!=null){
+
+resultHTML+=
+"<div class='result-title'>Body Stats</div>"+
+"BMI: <b>"+bmi.toFixed(1)+"</b><br>"+
+"Body Fat Estimate: <b>"+bodyFat.toFixed(1)+"%</b><br><br>"
+
+}
+
+resultHTML+=
+
+"<div class='result-title'>Calories</div>"+
+"Total Calories: <b>"+Math.round(calories)+" kcal</b><br><br>"+
 
 "<div class='result-title'>Macronutrients</div>"+
 
-"Protein: <b>"+Math.round(protein)+" g</b> ("+Math.round(proteinCalories)+" kcal)<br>"+
-"Carbs: <b>"+Math.round(carbs)+" g</b> ("+Math.round(carbCalories)+" kcal)<br>"+
-"Fat: <b>"+Math.round(fat)+" g</b> ("+Math.round(fatCalories)+" kcal)"
+"Protein: "+Math.round(protein)+" g ("+Math.round(proteinCalories)+" kcal)"+
+"<div class='macro-bar'><div class='macro-fill' style='width:"+proteinPercent+"%'></div></div>"+
+
+"Carbs: "+Math.round(carbs)+" g ("+Math.round(carbCalories)+" kcal)"+
+"<div class='macro-bar'><div class='macro-fill' style='width:"+carbPercent+"%;background:#3b82f6'></div></div>"+
+
+"Fat: "+Math.round(fat)+" g ("+Math.round(fatCalories)+" kcal)"+
+"<div class='macro-bar'><div class='macro-fill' style='width:"+fatPercent+"%;background:#f59e0b'></div></div>"
+
+document.getElementById("result").innerHTML=resultHTML
 
 }
 
