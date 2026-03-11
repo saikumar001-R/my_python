@@ -166,9 +166,6 @@ background:#22c55e;
 
 let maintenanceCalories
 let userWeight
-let userAge
-let userGender
-let userHeight
 
 function calculate(){
 
@@ -184,9 +181,6 @@ return
 }
 
 userWeight=parseFloat(weight)
-userAge=parseFloat(age)
-userGender=gender
-userHeight=parseFloat(height)
 
 let bmr
 
@@ -198,18 +192,7 @@ bmr=10*weight+6.25*height-5*age-161
 
 maintenanceCalories=Math.round(bmr*activity)
 
-let heightMeters=height/100
-let bmi=weight/(heightMeters*heightMeters)
-
-let bodyFat
-
-if(gender=="male"){
-bodyFat=(1.20*bmi)+(0.23*age)-16.2
-}else{
-bodyFat=(1.20*bmi)+(0.23*age)-5.4
-}
-
-showMacros(maintenanceCalories,bmi,bodyFat)
+showMacros(maintenanceCalories)
 
 document.getElementById("goalButtons").style.display="flex"
 
@@ -229,7 +212,7 @@ showMacros(calories)
 
 }
 
-function showMacros(calories,bmi=null,bodyFat=null){
+function showMacros(calories){
 
 let protein=userWeight*2
 let fat=userWeight*0.8
@@ -246,20 +229,10 @@ let proteinPercent=(proteinCalories/calories)*100
 let carbPercent=(carbCalories/calories)*100
 let fatPercent=(fatCalories/calories)*100
 
-let resultHTML=""
-
-if(bmi!=null){
-
-resultHTML+=
-"<div class='result-title'>Body Stats</div>"+
-"BMI: <b>"+bmi.toFixed(1)+"</b><br>"+
-"Body Fat Estimate: <b>"+bodyFat.toFixed(1)+"%</b><br><br>"
-
-}
-
-resultHTML+=
+let resultHTML=
 
 "<div class='result-title'>Calories</div>"+
+
 "Total Calories: <b>"+Math.round(calories)+" kcal</b><br><br>"+
 
 "<div class='result-title'>Macronutrients</div>"+
